@@ -91,7 +91,7 @@ function rollRareSlot(state: PackState, rng: Rng, forceTop: boolean): { rarity: 
   return { rarity: rng.next() < RARE_SLOT.R / rest ? "R" : "SR", pity: null };
 }
 
-function rollFinish(rarity: Rarity, rng: Rng): Finish {
+export function rollFinish(rarity: Rarity, rng: Rng): Finish {
   const x = rng.next();
   let acc = 0;
   for (const [finish, p] of Object.entries(FINISH_RATES[rarity]) as [Finish, number][]) {

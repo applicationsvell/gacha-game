@@ -55,7 +55,21 @@ export type BattleEvent =
   | { t: "damage"; uid: number; amount: number; absorbed: number }
   | { t: "faint"; uid: number; side: Side; name: string }
   | { t: "summon"; uid: number; side: Side; name: string; atk: number; hp: number }
-  | { t: "round"; n: number };
+  | { t: "round"; n: number }
+  /** その時点の並びと数値(画面の再生用)。能力・攻撃・退場のたびに記録する */
+  | { t: "state"; A: UnitSnap[]; B: UnitSnap[] };
+
+export interface UnitSnap {
+  uid: number;
+  name: string;
+  cardId: string | null;
+  tribe: Tribe;
+  atk: number;
+  hp: number;
+  maxHp: number;
+  shield: number;
+  star: Star;
+}
 
 export type Outcome = "win" | "lose" | "draw";
 
@@ -125,6 +139,21 @@ export function simulateBattle(teamA: Team, teamB: Team, ctx: BattleContext): Ba
   const initialA = lines.A.map((u) => ({ ...u }));
   const initialB = lines.B.map((u) => ({ ...u }));
   const other = (side: Side): Side => (side === "A" ? "B" : "A");
+
+  const snapUnit = (u: BattleUnit): UnitSnap => ({
+    uid: u.uid,
+    name: u.name,
+    cardId: u.cardId,
+    tribe: u.tribe,
+    atk: u.atk,
+    hp: u.hp,
+    maxHp: u.maxHp,
+    shield: u.shield,
+    star: u.star,
+  });
+  const snap = (): void => {
+    events.push({ t: "state", A: lines.A.map(snapUnit), B: lines.B.map(snapUnit) });
+  };
 
   const takeDamage = (u: BattleUnit, amount: number): void => {
     if (amount <= 0) return;
@@ -213,6 +242,7 @@ export function simulateBattle(teamA: Team, teamB: Team, ctx: BattleContext): Ba
         }
         break;
     }
+    snap();
   };
 
   /** 倒れた者を列から外し、faint を発動する。連鎖が止まるまで繰り返す */
@@ -227,6 +257,7 @@ export function simulateBattle(teamA: Team, teamB: Team, ctx: BattleContext): Ba
         const [dead] = line.splice(idx, 1);
         if (!dead) continue;
         events.push({ t: "faint", uid: dead.uid, side, name: dead.name });
+        snap();
         fire(dead, "faint", idx);
       }
       if (!found) return;
@@ -242,6 +273,7 @@ export function simulateBattle(teamA: Team, teamB: Team, ctx: BattleContext): Ba
 
   const finished = () => lines.A.length === 0 || lines.B.length === 0;
 
+  snap();
   fireAll("battleStart");
   let round = 0;
   while (!finished() && round < MAX_ROUNDS) {
@@ -256,6 +288,7 @@ export function simulateBattle(teamA: Team, teamB: Team, ctx: BattleContext): Ba
     events.push({ t: "attack", a: fa.uid, b: fb.uid, dmgToB, dmgToA });
     takeDamage(fb, dmgToB);
     takeDamage(fa, dmgToA);
+    snap();
     fire(fa, "attack");
     fire(fb, "attack");
     resolveDeaths();

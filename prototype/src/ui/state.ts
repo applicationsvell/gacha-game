@@ -7,6 +7,9 @@ import type { Collection } from "../core/collection.ts";
 import { newMarket } from "../core/economy.ts";
 import type { MarketState } from "../core/economy.ts";
 import { SET1 } from "../data/index.ts";
+import { openDropPack } from "../core/expedition.ts";
+import type { PulledCard } from "../core/gacha.ts";
+import type { Tribe } from "../core/types.ts";
 
 /*
  * 試作の画面で使う状態。ブラウザに保存し、再読み込みしても続きから遊べる。
@@ -34,6 +37,11 @@ export interface GameState {
   rngState: number;
   stats: Stats;
   muted: boolean;
+  /** 遠征の編成(カードID、先頭から) */
+  team: string[];
+  /** ボスを倒した地域 */
+  cleared: string[];
+  expeditions: number;
 }
 
 function fresh(): GameState {
@@ -46,6 +54,9 @@ function fresh(): GameState {
     rngState: (Date.now() ^ Math.floor(Math.random() * 2 ** 31)) >>> 0,
     stats: { packs: 0, ssr: 0, ur: 0, god: 0, gold: 0 },
     muted: false,
+    team: [],
+    cleared: [],
+    expeditions: 0,
   };
 }
 
@@ -122,6 +133,28 @@ export class Game {
     this.record(results);
     this.save();
     return { results, newIds };
+  }
+
+  /** 遠征のドロップパックを開ける(天井と交換ポイントには数えない) */
+  openDrop(tribes: readonly Tribe[]): { cards: PulledCard[]; newIds: Set<string> } {
+    const cards = openDropPack(SET1, tribes, this.rng);
+    const newIds = new Set(addPulled(this.s.col, cards).newCardIds);
+    this.save();
+    return { cards, newIds };
+  }
+
+  /** 遠征から帰ったときの精算 */
+  finishExpedition(regionId: string, gold: number, cleared: boolean): void {
+    this.s.gold += gold;
+    this.s.expeditions += 1;
+    if (cleared && !this.s.cleared.includes(regionId)) this.s.cleared.push(regionId);
+    this.save();
+  }
+
+  /** 編成を保存する。持っていないカードは外す */
+  setTeam(ids: string[]): void {
+    this.s.team = ids.filter((id) => (this.s.col.cards[id] ? true : false)).slice(0, 5);
+    this.save();
   }
 
   addDebugGold(): void {

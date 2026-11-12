@@ -2,11 +2,12 @@ import "./styles.css";
 import { Game } from "./state.ts";
 import { Fx } from "./fx.ts";
 import { playBox, playSingle } from "./opening.ts";
+import { runExpedition } from "./expeditionView.ts";
 import type { Deps, NextAction } from "./opening.ts";
 import { setMuted, sfx, unlockAudio } from "./sound.ts";
 import { cardEl, attachTilt } from "./cardView.ts";
 import { monsterSvg } from "./art.ts";
-import { completion, copies, exchange } from "../core/collection.ts";
+import { canUpgradeStar, completion, copies, exchange, upgradeStar } from "../core/collection.ts";
 import {
   expectedCopiesPerPack,
   FINISH_RATES,
@@ -56,7 +57,8 @@ function renderHud(): void {
     actions.innerHTML = `
       <button class="btn primary big" data-act="one" ${game.canBuy(1) ? "" : "disabled"}>1パック開ける <small>${game.set.packPrice}G</small></button>
       <button class="btn gold big" data-act="box" ${game.canBuy(10) ? "" : "disabled"}>10パック まとめて <small>${(game.set.packPrice * 10).toLocaleString()}G</small></button>
-      <button class="btn ghost" data-act="earn">＋${(1000).toLocaleString()}G 稼ぐ <small>(試作用。遠征と店は次の段階)</small></button>`;
+      <button class="btn expedition big" data-act="expedition">⚔ 遠征に出て稼ぐ <small>${game.s.cleared.length ? `クリア済み ${game.s.cleared.length} 地域` : "モンスターを連れて戦い、ゴールドとドロップパックを持ち帰る"}</small></button>
+      <button class="btn ghost" data-act="earn">＋${(1000).toLocaleString()}G <small>(試作用。店はまだない)</small></button>`;
   }
 }
 
@@ -85,6 +87,20 @@ async function runOpenings(first: NextAction | "starter"): Promise<void> {
       }
       renderHud();
     }
+  } finally {
+    busy = false;
+    app.classList.remove("hide");
+    renderHud();
+  }
+}
+
+async function runExp(): Promise<void> {
+  if (busy) return;
+  busy = true;
+  unlockAudio();
+  app.classList.add("hide");
+  try {
+    await runExpedition({ game, fx, root: $("#expedition"), shakeEl: document.body, flashEl: $("#flash") });
   } finally {
     busy = false;
     app.classList.remove("hide");
@@ -123,6 +139,19 @@ function openBinder(): void {
       tag.className = "slot-tag";
       tag.textContent = `×${n}`;
       cell.appendChild(tag);
+      if (canUpgradeStar(game.s.col, card.id)) {
+        const up = document.createElement("button");
+        up.className = "btn tiny gold";
+        up.textContent = `★${own.star + 1}にする`;
+        up.addEventListener("click", () => {
+          upgradeStar(game.s.col, card.id);
+          game.save();
+          sfx.reveal(2);
+          renderHud();
+          openBinder();
+        });
+        cell.appendChild(up);
+      }
     } else {
       const cost = POINT_COST[card.rarity];
       cell.innerHTML = `<div class="silhouette r-${card.rarity}"><div class="sil-art">${monsterSvg(card)}</div><span>${card.rarity}</span></div>
@@ -185,6 +214,9 @@ document.addEventListener("click", (e) => {
       break;
     case "box":
       void runOpenings("box");
+      break;
+    case "expedition":
+      void runExp();
       break;
     case "earn":
       game.addDebugGold();

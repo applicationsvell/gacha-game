@@ -143,6 +143,37 @@ export const sfx = {
     [60, 64, 67, 72].forEach((n) => tone(NOTE(n), 0.8, 3.5, "sawtooth", 0.07));
     [72, 76, 79, 84].forEach((n) => tone(NOTE(n), 0.8, 3.5, "triangle", 0.09));
   },
+  hit(power = 1): void {
+    noise(0, 0.12, 0.35 + power * 0.1, 2500, 400, 1.2);
+    tone(140 - power * 20, 0, 0.12, "square", 0.12, 60);
+  },
+  ability(): void {
+    tone(NOTE(84), 0, 0.12, "triangle", 0.07);
+    tone(NOTE(91), 0.06, 0.18, "triangle", 0.06);
+  },
+  shield(): void {
+    tone(NOTE(76), 0, 0.25, "sine", 0.1, NOTE(88));
+  },
+  heal(): void {
+    [0, 4, 7].forEach((n, i) => tone(NOTE(79 + n), i * 0.05, 0.25, "sine", 0.06));
+  },
+  faint(): void {
+    noise(0, 0.3, 0.3, 1200, 200, 0.8);
+    tone(300, 0, 0.3, "triangle", 0.08, 90);
+  },
+  summon(): void {
+    tone(NOTE(72), 0, 0.15, "sine", 0.08, NOTE(84));
+  },
+  win(): void {
+    [72, 76, 79, 84].forEach((n, i) => tone(NOTE(n), i * 0.1, 0.5, "square", 0.07));
+    [84, 88, 91].forEach((n) => tone(NOTE(n), 0.45, 1.2, "triangle", 0.08));
+  },
+  lose(): void {
+    [67, 63, 60, 55].forEach((n, i) => tone(NOTE(n), i * 0.22, 0.5, "triangle", 0.09));
+  },
+  step(): void {
+    tone(NOTE(67), 0, 0.08, "triangle", 0.05);
+  },
   coin(): void {
     tone(NOTE(88), 0, 0.08, "square", 0.06);
     tone(NOTE(95), 0.07, 0.25, "square", 0.06);
