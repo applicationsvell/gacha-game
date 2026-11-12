@@ -501,3 +501,10 @@ dialog#modal::backdrop { background: rgba(5, 3, 15, 0.75); backdrop-filter: blur
   .line { gap: 5px; }
   .exp-foot .btn.big { min-width: 0; flex: 1 1 100%; }
 }
+
+/* 見出し用フォント(Dela Gothic One)は一部の漢字が出ないことがあるので、日本語の見出しは本文の太字にする */
+.exp-head h2, .round, .summary h2, .settle-title, .exp-panel-inner h3 { font-family: var(--body); font-weight: 800; }
+.battle-host { position: relative; }
+.line-A .unit.front::after, .line-B .unit.front::after, .front-tag { white-space: nowrap; }
+.gain.big { font-family: var(--body); font-weight: 800; }
+.exp-foot .btn:not(.primary):not(.gold) { background: #16243a; }

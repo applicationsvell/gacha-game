@@ -50,6 +50,10 @@ test("地図は地域の並びどおりで、戦う場所には敵の編成が�
   });
   const boss = exp.map.at(-1)![0]!.enemy!;
   assert.equal(boss.slots.at(-1)!.cardId, forest.bossCardId);
+  for (let seed = 0; seed < 50; seed++) {
+    const b = startExpedition(forest, SET1, createRng(seed)).map.at(-1)![0]!.enemy!;
+    assert.equal(b.slots.filter((s) => s.cardId === forest.bossCardId).length, 1, "護衛にボスと同じカードがいない");
+  }
 });
 
 test("同じシードなら同じ地図", () => {

@@ -92,8 +92,8 @@ function enemyRarityTable(strength: number): Partial<Record<Rarity, number>> {
   return { U: 0.25, R: 0.5, SR: 0.25 };
 }
 
-function pickCard(set: CardSet, tribes: readonly Tribe[], rarity: Rarity, rng: Rng): CardDef {
-  const inRegion = set.byRarity[rarity].filter((c) => tribes.includes(c.tribe));
+function pickCard(set: CardSet, tribes: readonly Tribe[], rarity: Rarity, rng: Rng, exclude?: string): CardDef {
+  const inRegion = set.byRarity[rarity].filter((c) => tribes.includes(c.tribe) && c.id !== exclude);
   const pool = inRegion.length ? inRegion : set.byRarity[rarity];
   return pool[rng.int(pool.length)] as CardDef;
 }
@@ -107,7 +107,8 @@ export function enemyTeam(region: RegionDef, set: CardSet, layer: number, kind: 
   else if (kind === "elite") count = Math.min(TEAM_SIZE, 3 + Math.floor(layer / 2));
   else count = Math.min(TEAM_SIZE, 2 + Math.floor(layer / 2) + region.level);
   for (let i = 0; i < count; i++) {
-    const card = pickCard(set, region.tribes, pickWeighted(table, rng), rng);
+    // ボスの護衛に、ボスと同じカードは入れない
+    const card = pickCard(set, region.tribes, pickWeighted(table, rng), rng, kind === "boss" ? region.bossCardId : undefined);
     let star: Star = 1;
     if (kind === "elite" && i === 0) star = 2;
     if (kind === "boss" && region.level > 0) star = 2;
