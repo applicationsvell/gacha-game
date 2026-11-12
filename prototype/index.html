@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0820" />
+    <title>パックモンガー 試作</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="hud">
+        <div class="logo">PACK<span>MONGER</span><small>試作</small></div>
+        <div class="hud-gold" title="ゴールド">🪙 <b id="gold">0</b>G</div>
+        <div class="hud-pity">
+          <div class="meter"><label>SSR天井</label><div class="bar"><i id="pity-ssr"></i></div><span id="pity-ssr-t"></span></div>
+          <div class="meter ur"><label>UR天井</label><div class="bar"><i id="pity-ur"></i></div><span id="pity-ur-t"></span></div>
+        </div>
+        <div class="hud-chip">交換pt <b id="pts">0</b></div>
+        <div class="hud-chip">図鑑 <b id="dex">0/60</b></div>
+      </header>
+
+      <main class="hub">
+        <section class="shelf">
+          <div class="pedestal">
+            <div class="hero-glow"></div>
+            <div id="hero-pack" class="pack hero"></div>
+          </div>
+          <p class="chance" id="chance"></p>
+          <div class="actions" id="actions"></div>
+        </section>
+        <p class="stats" id="stats"></p>
+      </main>
+
+      <footer class="foot">
+        <button class="btn ghost" data-act="binder">📖 図鑑</button>
+        <button class="btn ghost" data-act="rates">📊 排出率</button>
+        <button class="btn ghost" data-act="sound" id="sound">🔊 音あり</button>
+        <button class="btn ghost" data-act="reset">↺ 最初から</button>
+      </footer>
+    </div>
+
+    <div id="stage" class="stage" hidden></div>
+    <div id="flash" aria-hidden="true"></div>
+    <canvas id="fx" aria-hidden="true"></canvas>
+    <dialog id="modal"></dialog>
+
+    <script type="module" src="/src/ui/main.ts"></script>
+  </body>
+</html>
