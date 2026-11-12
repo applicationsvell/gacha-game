@@ -173,7 +173,7 @@ def sim_rates(n_packs: int, rng: random.Random) -> None:
           f" / UR が入る率 {cnt['UR'] / n_packs:.3%}")
     print(f"  ゴッドパック 1/{n_packs / max(gods, 1):,.0f}")
     for f, c in fin.items():
-        print(f"  仕上げ {f:<5} 1/{n_packs / max(c, 1):,.1f} パック")
+        print(f"  仕上げ {f:<5} 1枚あたり {n_packs / max(c, 1):,.1f} パック (枚数で数えた平均)")
     print()
     mean_v = statistics.fmean(values)
     print("## 4. 売却期待値 (全カードを買取価格で売った場合)")

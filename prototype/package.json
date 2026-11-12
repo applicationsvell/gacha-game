@@ -1,0 +1,19 @@
+{
+  "name": "packmonger-prototype",
+  "private": true,
+  "version": "0.1.0",
+  "description": "パックモンガー(仮題)の試作。まずはゲームのロジックと自動テスト",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.3",
+    "typescript": "5.9.3"
+  }
+}
