@@ -204,9 +204,19 @@ document.addEventListener("click", (e) => {
       renderHud();
       break;
     case "reset":
-      if (confirm("保存データを消して、最初からやり直しますか?")) {
+      // confirm() が使えない環境もあるので、画面内で確かめる(3秒以内にもう一度押すと消える)
+      if (t.dataset.armed === "1") {
         game.reset();
+        delete t.dataset.armed;
+        t.textContent = "↺ 最初から";
         renderHud();
+      } else {
+        t.dataset.armed = "1";
+        t.textContent = "本当に消す? もう一度押す";
+        setTimeout(() => {
+          delete t.dataset.armed;
+          t.textContent = "↺ 最初から";
+        }, 3000);
       }
       break;
   }
