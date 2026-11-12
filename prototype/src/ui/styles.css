@@ -508,3 +508,6 @@ dialog#modal::backdrop { background: rgba(5, 3, 15, 0.75); backdrop-filter: blur
 .line-A .unit.front::after, .line-B .unit.front::after, .front-tag { white-space: nowrap; }
 .gain.big { font-family: var(--body); font-weight: 800; }
 .exp-foot .btn:not(.primary):not(.gold) { background: #16243a; }
+
+/* 取り込んだカード絵 */
+.card-img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; }

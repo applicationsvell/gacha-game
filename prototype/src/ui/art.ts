@@ -68,12 +68,22 @@ function face(tribe: Tribe, r: () => number): string {
     <circle cx="${100 - gap + 2}" cy="${eyeY - 2}" r="${size * 0.35}" fill="#fff"/><circle cx="${100 + gap + 2}" cy="${eyeY - 2}" r="${size * 0.35}" fill="#fff"/>${mouth}`;
 }
 
+/** 取り込んだカード絵(src/art/<カードID>.webp)。ない場合は手続き生成の仮の絵を使う */
+const ART_FILES = import.meta.glob("../art/*.webp", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
+const ART_URL = new Map(Object.entries(ART_FILES).map(([path, url]) => [path.split("/").pop()?.replace(".webp", "") ?? "", url]));
+
+export function hasArt(cardId: string): boolean {
+  return ART_URL.has(cardId);
+}
+
 const cache = new Map<string, string>();
 let instance = 0;
 const instantiate = (template: string) => template.replaceAll("__U__", String(++instance));
 
 /** カードの絵(SVG文字列)。full はフルアート用に背景を広げる */
 export function monsterSvg(card: CardDef, full = false): string {
+  const url = ART_URL.get(card.id);
+  if (url) return `<img class="card-img" src="${url}" alt="" decoding="async" draggable="false">`;
   const key = `${card.id}:${full}`;
   const hit = cache.get(key);
   if (hit) return instantiate(hit);
